@@ -199,14 +199,12 @@ table {
 </style>
 <script>
 
-    console.log("loading...");
-
     // start in dark mode :
     document.documentElement.setAttribute('data-theme', 'dark');
 
 function noop() {}
-// console.log = noop;
-// console.warn = noop;
+console.log = noop;
+console.warn = noop;
 
 const wait = ms => new Promise(r => setTimeout(r, ms));
 
@@ -217,6 +215,9 @@ function changeTheme(t) {
     localStorage.setItem(themeKey, t);
     return false;
 }
+
+
+console.log("building html...");
 
 /* SYSEX */
 function log( t, color = null ) {
@@ -390,27 +391,8 @@ function makeSysExMappings( data, c ) {
 			data[c+2] = 12 + re;
 			data[c+3] = (j-1)*8 + i;
 			c += 4;
-
-            map += 1;
-            if ( map >= 384 ) {
-                return data;
-            }
-        }
-        var id = "mcvm3_" + j + "_";
-        for ( i = 0; i < mcvMappable3Controls.length; ++i ) {
-            var ch = document.getElementById( id + mcvMappable3Controls[i] + "_ch" ).value - 1;
-            var cc = document.getElementById( id + mcvMappable3Controls[i] + "_cc" ).value;
-            let re = document.getElementById( id + mcvMappable3Controls[i] + "_cc" + "_rel" ).checked ? 32 : 0;
-            if ( ch < 0 || cc < 0 ) {
-                continue;
-            }
-            data[c+0] = 0x30 | ch;
-            data[c+1] = cc;
-            data[c+2] = 16 + re;
-            data[c+3] = (j-1)*8 + i;
-            c += 4;
-
-            map += 1;
+			
+			map += 1;
 			if ( map >= 384 ) {
 				return data;
 			}
@@ -1014,7 +996,6 @@ var seqControls = [ "T", "S", "G", "P" ];
 var dseqControls = [ "S", "P" ];
 var dseqlControls = [ "T", "S", "P" ];
 var mcvMappable2Controls = [ "A", "D", "S", "R", "N", "P", "V", "RND" ];
-var mcvMappable3Controls = [ "AS", "DS", "RS" ];
 var mcvCommands = [ "A", "R", "T", "N", "P", "K", "O" ];
 var eucControls = [ "P", "S", "R", "T", "G", "A", "E" ];
 var srrControls = [ "D", "L", "R", "T", "A", "S", "K", "G" ];
@@ -1342,7 +1323,7 @@ At the time of writing this will work only in Google's <a href="http://www.googl
 -->
 
 <div class="small" style="display:flex">
-    This version is for FH-2 firmware v1.24 and above.
+    This version is for FH-2 firmware v1.23 and above.
     <span class="margin-left"><a href="https://www.expert-sleepers.co.uk/downloads/manuals/fh2_user_manual_1.23.pdf" target="_blank">User manual (PDF)</a></span>
     <label class="margin-left">Theme: </label>
     <a href="#" style="margin-left:0.25rem" onclick="changeTheme('light')">Light</a>
@@ -1405,12 +1386,12 @@ At the time of writing this will work only in Google's <a href="http://www.googl
         <td class="x-large">
             <label for="config_name">Configuration:</label> <input id='config_name' accesskey='n' type='text' class="large">
         </td>
-        <td style="padding-left:1rem">
+        <td style="padding-left:2rem">
             <input type="hidden" id="pc_channel" value="0" />
             <table>
                 <tr>
                     <td>
-                        Load config from slot
+                        Load from config slot
                     </td>
                     <td>
                         <select id="configurationSlot" onChange="loadConfiguration()" style="width:8rem" title="Load a configuration slot into the current config">
@@ -1420,15 +1401,18 @@ At the time of writing this will work only in Google's <a href="http://www.googl
                             </script>
                         </select>
                     </td>
+                    <td>&nbsp;</td>
                     <td>
                         <button onClick="selectPreviousConfiguration()">prev</button>
                         <button onClick="selectNextConfiguration()">next</button>
                     </td>
-                    <td style="padding-left:1rem">
+                    <td>&nbsp;</td>
+                    <td>
                         <button onClick="scanConfiguration()" title="Read all the configuration slots names">Scan configurations slots</button>
                     </td>
+                    <td>&nbsp;</td>
                     <td>
-                        <span class="small">using ch</span>
+                        <span class="small">using ch.</span>
                         <select id="configurationChannelSelector">
                             <option value="0">1</option>
                             <option value="1">2</option>
@@ -1447,30 +1431,9 @@ At the time of writing this will work only in Google's <a href="http://www.googl
                             <option value="14">15</option>
                             <option value="15" selected>16</option>
                         </select>
-
-                        <button onclick='saveToFlash(document.getElementById("save_conf_target_slot").value)' style="margin-left:1rem">Save config</button> in slot
-                        <select id='save_conf_target_slot' title="Save the current config into a configuration slot">
-                            <script>
-                                document.write(getOptionsHTML(0, 30, 0));
-                            </script>
-                        </select>
-
                     </td>
                 </tr>
             </table>
-
-<!--            <div>-->
-<!--                <div>-->
-<!--
-                    <button onclick='saveToFlash(document.getElementById("save_conf_target_slot").value)'>save config</button> in slot
-                    <select id='save_conf_target_slot' title="Save the current config into a configuration slot">
-                        <script>
-                            document.write(getOptionsHTML(0, 30, 0));
-                        </script>
-                    </select>
--->
-<!--                </div>-->
-<!--            </div>-->
 
         </td>
     </tr>
@@ -2136,7 +2099,6 @@ Remember that the tool is editing the FH-2's <strong>current</strong> configurat
         <th class="bg-blue">Transpose</th>
         <th class="bg-blue" colspan=7>Envelopes</th>
         <th class="bg-blue">Random</th>
-        <th class="bg-blue" colspan=3>Envelope shapes</th>
     </tr>
     <tr>
         <th></th>
@@ -2144,12 +2106,11 @@ Remember that the tool is editing the FH-2's <strong>current</strong> configurat
         <th></th>
         <th>Attack</th><th>Decay</th><th>Sustain</th><th>Release</th><th>Range</th><th>Depth</th><th>Velocity Depth</th>
         <th></th>
-        <th>Attack</th><th>Decay</th><th>Release</th>
     </tr>
     </thead>
     <tr>
         <td></td>
-        <td class='tc' colspan=13>Preset Items - Channel/CC</td>
+        <td class='tc' colspan=10>Preset Items - Channel/CC</td>
     </tr>
     <script>
 
@@ -2218,39 +2179,6 @@ Remember that the tool is editing the FH-2's <strong>current</strong> configurat
                 else if (j == 7)
                 {
                     param_label = "random depth";
-                }
-                else
-                {
-                    param_label = "error: unknown parameter";
-                }
-
-                clkHtml += "<td>";
-                clkHtml += getMIDIChannelSelectorHTML( chid, true, ccid );
-                clkHtml += getMIDICCSelectorHTML( ccid );
-                clkHtml += "</td>";
-
-                // document.write( "<td><label class='hidden' for='" + chid + "'>" + param_label + " MIDI channel (Converter " + i + ")</label>");
-                // writeMIDIChannelSelector( chid, true, ccid );
-                // document.write( "<label class='hidden' for='" + ccid + "'>" + param_label + " MIDI CC (Converter " + i + ")</label>");
-                // writeMIDICCSelector( ccid );
-                // document.write( "</td>" );
-            }
-            for ( var j=0; j<mcvMappable3Controls.length; ++j ) {
-                var chid = "mcvm3_" + i + "_" + mcvMappable3Controls[j] + "_ch";
-                var ccid = "mcvm3_" + i + "_" + mcvMappable3Controls[j] + "_cc";
-                var param_label;
-
-                if (j == 0)
-                {
-                    param_label = "attack shape";
-                }
-                else if (j == 1)
-                {
-                    param_label = "decay shape";
-                }
-                else if (j == 2)
-                {
-                    param_label = "release shape";
                 }
                 else
                 {
@@ -3121,14 +3049,6 @@ function parseConfigDump( data ) {
 			ta.value = -1;
 			ta.style.display = "none";
 		}
-        var id = "mcvm3_" + j + "_";
-        for ( i = 0; i < mcvMappable3Controls.length; ++i ) {
-            var ccid = id + mcvMappable3Controls[i] + "_cc";
-            document.getElementById( id + mcvMappable3Controls[i] + "_ch" ).value = -1;
-            var ta = document.getElementById( ccid );
-            ta.value = -1;
-            ta.style.display = "none";
-        }
 	}
 	for ( j=1; j<17; ++j ) {
 		var id = "euc_" + j + "_";
@@ -3335,18 +3255,6 @@ function parseConfigDump( data ) {
 						changeMIDIChannel( id, ccid );
 					}
 				}
-                else if ( t0 == 16 ) {
-                    var j = ( t1 >> 3 ) + 1;
-                    var k = t1 & 7;
-                    if ( k >= 0 && k < mcvMappable3Controls.length ) {
-                        var id = "mcvm3_" + j + "_";
-                        ccid = id + mcvMappable3Controls[k] + "_cc";
-                        id = id + mcvMappable3Controls[k] + "_ch";
-                        document.getElementById( id ).value = ch+1;
-                        document.getElementById( ccid ).value = cc;
-                        changeMIDIChannel( id, ccid );
-                    }
-                }
 				else if ( t0 == 69 ) {
 					var id = "glb_tempo_ch";
 					ccid = "glb_tempo_cc";
@@ -3662,7 +3570,6 @@ function setMidiOutSelect(value) {
 }
 
 function onMIDISuccess(midiAccess) {
-    console.log("onMIDISuccess");
 	log( "midi access granted" );
     status("OK");
     midi = midiAccess;
@@ -3670,22 +3577,11 @@ function onMIDISuccess(midiAccess) {
     onStateChange(null);
 }
 function onStateChange(e) {
-    console.log("onStateChange", e);
-    if (e) {
-        console.log("onStateChange for", e.port.type, e.port.name, e.port.state);
-        // if (e.port.type == "input") {
-        //     if (e.port.state == "connected") {
-        //         console.log("onStateChange", e.port.name, "connected");
-        //     } else {
-        //         console.log("onStateChange", e.port.name, "disconnected");
-        //     }
-        // }
-    }
+
     var str = "";
     // var fh2 = -1;
     var inputs = midi.inputs.values();
     for ( var input = inputs.next(); input && !input.done; input = inputs.next() ) {
-        console.log("add input", input.value.name);
 	    str += "<option value='" + input.value.id + "'>" + input.value.name + "</option>";
 	    // if ( input.value.name == "FH-2" ) {
 		//     fh2 = input.value.id;
@@ -3702,7 +3598,6 @@ function onStateChange(e) {
     // fh2 = -1;
     var outputs = midi.outputs.values();
     for ( var output = outputs.next(); output && !output.done; output = outputs.next() ) {
-        console.log("add output", output.value.name);
 	    str += "<option value='" + output.value.id + "'>" + output.value.name + "</option>";
 	    // if ( output.value.name == "FH-2" ) {
 		//     fh2 = output.value.id;
@@ -3723,26 +3618,22 @@ function onMIDIFailure(e) {
     status("No access to MIDI devices or your browser doesn't support WebMIDI API.");
 }
 function setup_onmidimessage() {
-    console.log("setup_onmidimessage");
     let inputs = midi.inputs.values();
     if ( inputs.size == 0 ) {
     	return;
     }
     for ( let input = inputs.next(); input && !input.done; input = inputs.next() ) {
-        console.log("setup_onmidimessage: remove onmidimessage for", input.value.name);
     	input.value.onmidimessage = null;
     }
     let id = document.getElementById( "midiinput" ).value;
 	let input = midi.inputs.get(id);
 	if (input) {
-        console.log("setup_onmidimessage: add onmidimessage for", input.name);
         input.onmidimessage = onMIDIMessage;
     } else {
         console.log("input not found", id);
     }
 }
 function changeInput() {
-    console.log("changeInput");
   	setup_onmidimessage();
     let id = document.getElementById( "midiinput" ).value;
     if (id) {
@@ -3750,14 +3641,12 @@ function changeInput() {
     }
 }
 function changeOutput() {
-    console.log("changeOutput");
     var id = document.getElementById( "midioutput" ).value;
     if (id) {
         localStorage.setItem(fh2MIDIOutKey, id);
     }
 }
 function onMIDIMessage(message) {
-    console.log("onMIDIMessage", message.data.length, "bytes");
     data = message.data;
     var header = [ 0xF0, 0, 33, 39, 47 ];
     for ( var i=0; i<5; ++i ) {
@@ -3770,7 +3659,7 @@ function onMIDIMessage(message) {
     		return;
     	}
     }
-    // console.log("received message")
+    console.log("received message")
 	var dd = log( "received sysex (" + data.length + " bytes)" );
 	dumpSysex( data, "rxSysex", dd+"\n" );
 	if ( data[5] == 0x32 && data.length > 7 ) {
@@ -3824,19 +3713,9 @@ function send() {
 	// }
 	let arr = makeSysEx();
 	var output = midi.outputs.get( document.getElementById( "midioutput" ).value );
-    console.log("send", arr.length, "bytes to", output.name);
 	output.send( arr );
 	var dd = log( "sent sysex (" + arr.length + " bytes)" );
 	dumpSysex( arr, "txSysex", dd+"\n" );
-}
-function saveToFlash(i="0") {
-    let index = parseInt(i);
-    let output = midi.outputs.get( document.getElementById( "midioutput" ).value );
-    console.log("saveToFlash", index, output.name);
-    let arr = [ 0xF0, 0x00, 0x21, 0x27, 0x2F, 0x18, index, 0xF7 ];
-    output.send( arr );
-    let dd = log( "sent save to flash request to FH-2" );
-    dumpSysex( arr, "txSysex", dd+"\n" );
 }
 function sendMsg() {
 	var str = makeMsgSysEx();
@@ -3845,7 +3724,6 @@ function sendMsg() {
 		arr[i] = str.charCodeAt( i );
 	}
 	var output = midi.outputs.get( document.getElementById( "midioutput" ).value );
-    console.log("sendMsg: send sysex", arr.length, "bytes to", output.name);
 	output.send( arr );
 	var dd = log( "sent sysex (" + str.length + " bytes)" );
 	dumpSysex( arr, "txSysex", dd+"\n" );
@@ -3853,7 +3731,6 @@ function sendMsg() {
 function request() {
 	var output = midi.outputs.get( document.getElementById( "midioutput" ).value );
 	var arr = [ 0xF0, 0x00, 0x21, 0x27, 0x2F, 0x21, 0xF7 ];
-    console.log("request: send config dump request", arr.length, "bytes to", output.name);
 	output.send( arr );
 	var dd = log( "sent config dump request to FH-2" );
 	dumpSysex( arr, "txSysex", dd+"\n" );
@@ -3861,7 +3738,6 @@ function request() {
 function reqVersion() {
 	var output = midi.outputs.get( document.getElementById( "midioutput" ).value );
 	var arr = [ 0xF0, 0x00, 0x21, 0x27, 0x2F, 0x22, 0xF7 ];
-    console.log("reqVersion: send version request", arr.length, "bytes to", output.name);
 	output.send( arr );
 	var dd = log( "sent version request to FH-2" );
 	dumpSysex( arr, "txSysex", dd+"\n" );
@@ -3869,13 +3745,11 @@ function reqVersion() {
 function requestConfigurationName() {
     var output = midi.outputs.get( document.getElementById( "midioutput" ).value );
     var arr = [ 0xF0, 0x00, 0x21, 0x27, 0x2F, 0x49, 0xF7 ];
-    console.log("requestConfigurationName: send config name request", arr.length, "bytes to", output.name);
     output.send( arr );
     var dd = log( "sent config name request to FH-2" );
     dumpSysex( arr, "txSysex", dd+"\n" );
 }
 if ( navigator.requestMIDIAccess ) {
-    console.log("navigator.requestMIDIAccess");
     navigator.requestMIDIAccess ( {
         sysex: true
     } ).then(onMIDISuccess, onMIDIFailure);
@@ -3998,15 +3872,15 @@ function exportFile() {
 
 async function loadConfiguration(onlyName = false) {
     let slot = parseInt(document.getElementById("configurationSlot").value);
-    console.log("loadConfiguration:: slot", slot)
+    console.log("loadConfiguration :: slot", slot)
     if (slot < 0) return;
     let channel = parseInt(document.getElementById("configurationChannelSelector").value);
     var output = midi.outputs.get(document.getElementById("midioutput").value);
     var arr = [0xC0 + (0x0F & channel), 0x7F & slot];
-    console.log("loadConfiguration:: send", arr)
+    console.log("send", arr)
     output.send(arr);
-    console.log("loadConfiguration:: wait 100")
-    await wait(100)
+    console.log("wait 50")
+    await wait(50)
     if (onlyName) {
         requestConfigurationName();
     } else {
@@ -4037,7 +3911,7 @@ function selectPreviousConfiguration(onlyName=false) {
 async function selectNextConfiguration(onlyName=false) {
     let slot = parseInt(document.getElementById( "configurationSlot" ).value);
     slot = (slot === 29 ? 0 : (slot + 1));
-    console.log("selectNextConfiguration:: set slot", slot)
+    console.log("selectNextConfiguration :: set slot", slot)
     document.getElementById( "configurationSlot" ).value = slot;
     await loadConfiguration(onlyName);
 }
@@ -4049,8 +3923,8 @@ async function scanConfiguration() {
     document.getElementById( "configurationSlot" ).value = 0;
     await loadConfiguration(true);
     // TODO: wait until message received, like below; and remove the wait(200)
-    // console.log("wait 300")
-    await wait(300);
+    // console.log("wait 200")
+    await wait(200);
     for (let i=0; i<30; i++) {
         // The DFH-2 replies very fast, so a very small interval between the requests is possible.
         //  but the web application is slow, so the delay must be increased.
@@ -4064,9 +3938,9 @@ async function scanConfiguration() {
         // await wait(200);
         let retries = 40;
         while (retries > 0 && last_received_message !== RECEIVED_CONFIG_NAME) {
-            await wait(50);
+            await wait(20);
             retries--;
-            console.log("waiting for the reply", 40 - retries);
+            // console.log("retry", retries);
         }
         // console.log("last_received_message", last_received_message)
         // console.log("retries", retries)
@@ -4122,7 +3996,7 @@ function check(id) {
 
 ready(function() {
     // custom init
-    console.log("ready()");
+    // console.log("start init");
 
     var t = localStorage.getItem( themeKey ) || "light";
     if (t) {
